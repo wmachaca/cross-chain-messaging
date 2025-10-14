@@ -19,6 +19,7 @@ cross-chain-messaging/
 ├── .nvmrc                # Node.js version (22.14.0)
 ├── .prettierrc           # Prettier configuration
 ├── package.json          # Project dependencies and scripts
+├── setup-dev.sh          # Automated setup script
 └── README.md             # Project documentation
 ```
 
@@ -68,31 +69,33 @@ The project uses Node.js version `22.14.0`, specified in `.nvmrc`.
 
 ## Getting Started
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+### Automated Setup
 
-2. **Set Node.js Version**:
-   Use `nvm` to set the correct Node.js version:
-   ```bash
-   nvm use
-   ```
+To set up the development environment, run the `setup-dev.sh` script:
 
-3. **Lint and Format Code**:
-   - Lint all files:
-     ```bash
-     npm run lint
-     ```
-   - Format all files:
-     ```bash
-     npm run format
-     ```
+```bash
+chmod +x setup-dev.sh
+./setup-dev.sh
+```
 
-4. **Lint Solidity Contracts**:
-   ```bash
-   npm run lint:sol
-   ```
+This script performs the following steps:
+1. Installs Foundry globally and updates it to the latest version.
+2. Initializes the `contracts` folder with Foundry and installs dependencies (e.g., OpenZeppelin).
+3. Installs dependencies for the `backend` and `frontend` folders.
+4. Installs root-level dependencies.
+
+### Environment Variables
+
+The project requires environment variables for `contracts`, `backend`, and `frontend`. Copy the `.env.example` file into each folder and configure it as needed:
+
+```bash
+# Copy .env.example to each folder
+cp .env.example contracts/.env
+cp .env.example backend/.env
+cp .env.example frontend/.env
+```
+
+Edit the `.env` files with your keys and RPC URLs.
 
 ## License
 

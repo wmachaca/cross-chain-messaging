@@ -8,11 +8,10 @@ library CrossChainHasher {
         address player,
         uint8 move,
         uint256 blockNumber,
-        uint256 balance,
-        uint256 eventId 
+        uint256 balance
     ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(
-            chainId, contractAddress, player, move, blockNumber, balance, eventId 
+            chainId, contractAddress, player, move, blockNumber, balance
         ));
     }
 }

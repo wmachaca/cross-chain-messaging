@@ -17,12 +17,12 @@ contract CrossChainHasherTest is Test {
 
         // Expected hash
         bytes32 expectedHash = keccak256(abi.encodePacked(
-            chainId, contractAddress, player, move, blockNumber, balance, eventId
+            chainId, contractAddress, player, move, blockNumber, balance
         ));
 
         // Compute hash using the library
         bytes32 computedHash = CrossChainHasher.computeGameMoveLeaf(
-            chainId, contractAddress, player, move, blockNumber, balance, eventId
+            chainId, contractAddress, player, move, blockNumber, balance
         );
 
         // Assert that the computed hash matches the expected hash

@@ -30,31 +30,46 @@ contract CrossChainHasherTest is Test {
     }
 
     function testMerkleProofVerification() public {
-        // Define test inputs
+        // Define test inputs for two leaves
         uint256 chainId = 1;
         address contractAddress = address(0x123);
-        address player = address(0x456);
-        uint8 move = 2; // Corresponds to Move.Paper
+        address player1 = address(0x456);
+        address player2 = address(0x789);
+        uint8 move1 = 2; // Corresponds to Move.Paper
+        uint8 move2 = 1; // Corresponds to Move.Rock
         uint256 blockNumber = 100;
         uint256 balance = 1000;
 
-        // Compute the leaf
-        bytes32 leaf = CrossChainHasher.computeGameMoveLeaf(
+        // Compute two leaves
+        bytes32 leaf1 = CrossChainHasher.computeGameMoveLeaf(
             chainId,
             contractAddress,
-            player,
-            move,
+            player1,
+            move1,
             blockNumber,
             balance
         );
 
-        // Create a simplified Merkle proof and root
-        bytes32[] memory proof = new bytes32[](1);
-        proof[0] = leaf; // Simplified proof for testing
-        bytes32 merkleRoot = leaf; // Simplified Merkle root for testing
+        bytes32 leaf2 = CrossChainHasher.computeGameMoveLeaf(
+            chainId,
+            contractAddress,
+            player2,
+            move2,
+            blockNumber,
+            balance
+        );
 
-        // Verify the Merkle proof
-        bool isValid = CrossChainHasher.verifyMerkleProof(proof, merkleRoot, leaf);
+        // Compute the Merkle root
+        bytes32 merkleRoot = keccak256(abi.encodePacked(
+            leaf1 < leaf2 ? abi.encodePacked(leaf1, leaf2) : abi.encodePacked(leaf2, leaf1)
+        ));
+
+        // Create a valid proof for leaf1
+        bytes32[] memory proof = new bytes32[](1);
+        proof[0] = leaf2;
+
+        // Verify the Merkle proof for leaf1
+        bool isValid = CrossChainHasher.verifyMerkleProof(proof, merkleRoot, leaf1);
 
         // Assert that the proof is valid
         assertTrue(isValid, "The Merkle proof verification failed");

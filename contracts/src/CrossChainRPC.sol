@@ -80,7 +80,7 @@ contract CrossChainRPS {
         require(!game.resolved, "Game already resolved");
         
         // Calculate move based on block number (as per requirements)
-        Move move = block.number.calculateMove();
+        Move move = Move(uint8(block.number.calculateMove()));
         
         if (msg.sender == game.player1) {
             require(game.move1 == Move.None, "Player 1 already moved");
@@ -117,16 +117,19 @@ contract CrossChainRPS {
         require(!game.resolved, "Game already resolved");
         require(game.move1 != Move.None, "Player 1 hasn't moved");
         
-        // VERIFY THE CROSS-CHAIN PROOF
+        GameMoveStruct.GameMove memory gameMove = GameMoveStruct.GameMove({
+            sourceChainId: opponentChainId,
+            sourceContract: opponentContract,
+            player: opponent,
+            move: opponentMove,
+            blockNumber: opponentBlockNumber,
+            balance: opponentBalance
+        });
+
         bool proofValid = verifier.verifyCrossChainProof(
             merkleRoot,
             proof,
-            opponentChainId,
-            opponentContract,
-            opponent,
-            opponentMove,
-            opponentBlockNumber,
-            opponentBalance
+            gameMove
         );
         
         require(proofValid, "Invalid cross-chain proof");
@@ -146,7 +149,10 @@ contract CrossChainRPS {
         Game storage game = games[gameId];
         require(game.move1 != Move.None && game.move2 != Move.None, "Both moves required");
         
-        uint8 winner = MoveCalculator.determineWinner(game.move1, game.move2);
+        uint8 winner = MoveCalculator.determineWinner(
+            MoveCalculator.Move(uint8(game.move1)),
+            MoveCalculator.Move(uint8(game.move2))
+        );
         
         if (winner == 0) {
             // Draw - return stakes

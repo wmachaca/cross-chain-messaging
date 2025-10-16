@@ -88,7 +88,7 @@ contract CrossChainRPSTest is Test {
             chain1,
             address(game),
             player1,
-            uint8(CrossChainRPS.Move.Paper),
+            uint8(CrossChainRPS.Move.Rock), // Player 1's move is Rock
             99,
             1 ether
         );

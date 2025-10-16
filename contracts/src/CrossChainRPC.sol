@@ -41,6 +41,35 @@ contract CrossChainRPS {
     receive() external payable {
         balances[msg.sender] += msg.value;
     }
+
+    /**
+     * @dev Creates a new game and emits the GameInitiated event.
+     * @param gameId The unique identifier for the game.
+     * @param stake The amount of ETH each player must stake to participate.
+     */
+    function createGame(bytes32 gameId, uint256 stake) external {
+        require(games[gameId].player1 == address(0), "Game already exists");
+        require(balances[msg.sender] >= stake, "Insufficient balance to create game");
+
+        // Deduct the stake from the creator's balance
+        balances[msg.sender] -= stake;
+
+        // Initialize the game
+        games[gameId] = Game({
+            player1: msg.sender,
+            player2: address(0),
+            move1: Move.None,
+            move2: Move.None,
+            stake: stake,
+            chainId1: chainId,
+            chainId2: 0,
+            resolved: false,
+            result: GameResult.Pending
+        });
+
+        // Emit the GameInitiated event
+        emit GameInitiated(gameId, msg.sender, stake);
+    }
     
     /**
      * @dev Simple move commitment - this emits the event that will be proven cross-chain

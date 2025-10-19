@@ -10,7 +10,10 @@ cross-chain-messaging/
 │   ├── script/           # Deployment scripts
 │   ├── src/              # Contract source files
 │   └── test/             # Contract tests
-├── backend/              # Relayer service (Node.js/TypeScript)
+├── backend/              # 🔥 Cross-chain relayer service (Node.js/TypeScript)
+│   ├── src/              # TypeScript source code
+│   ├── tests/            # Jest test suite
+│   └── README.md         # 📚 Detailed backend documentation
 ├── frontend/             # Optional dashboard (Next.js/TypeScript)
 ├── .editorconfig         # Editor configuration for consistent formatting
 ├── .eslintignore         # Ignore patterns for ESLint
@@ -68,6 +71,29 @@ The following scripts are available in `package.json`:
 The project uses Node.js version `22.14.0`, specified in `.nvmrc`.
 
 ## Getting Started
+
+### Quick Start - Backend Development
+
+The **cross-chain relayer backend** is currently in active development. For detailed setup and API documentation:
+
+👉 **[Backend Documentation](./backend/README.md)**
+
+Key backend features:
+- ✅ Express.js server with TypeScript
+- ✅ Cross-chain event monitoring (in development)
+- ✅ Merkle proof generation for secure message verification
+- ✅ Request tracing and comprehensive error handling
+- ✅ Jest testing framework with full TypeScript support
+
+```bash
+# Quick backend setup
+cd backend
+npm install
+npm run dev
+
+# Access health check
+curl http://localhost:5000/health
+```
 
 ### Automated Setup
 

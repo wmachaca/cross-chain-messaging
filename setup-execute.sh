@@ -5,6 +5,23 @@
 
 set -e  # Exit on any error
 
+KEEP_ANVIL_RUNNING=false
+#KEEP_ANVIL_RUNNING=true
+
+# Parse arguments
+while getopts "k" opt; do
+    case $opt in
+        k)
+            KEEP_ANVIL_RUNNING=true
+            ;;
+        *)
+            echo "Usage: $0 [-k]"
+            echo "  -k  Keep Anvil running after the script completes"
+            exit 1
+            ;;
+    esac
+done
+
 echo "🗡️ ==============================================="
 echo "   Cross-Chain EventListener Battle Setup"
 echo "   ==============================================="
@@ -64,10 +81,14 @@ check_prerequisites() {
 
 # Function to cleanup background processes
 cleanup() {
-    print_warning "Cleaning up processes..."
-    if [ ! -z "$ANVIL_PID" ]; then
-        kill $ANVIL_PID 2>/dev/null || true
-        print_success "Anvil stopped"
+    if [ "$KEEP_ANVIL_RUNNING" = true ]; then
+        print_warning "Anvil will continue running in the background."
+    else
+        print_warning "Cleaning up processes..."
+        if [ ! -z "$ANVIL_PID" ]; then
+            kill $ANVIL_PID 2>/dev/null || true
+            print_success "Anvil stopped"
+        fi
     fi
 }
 
@@ -122,7 +143,7 @@ cd ../contracts
 
 # Deploy Verifier first
 print_status "Deploying Verifier contract..."
-VERIFIER_OUTPUT=$(forge create src/Verifier.sol:Verifier --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --broadcast)
+VERIFIER_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Verifier.sol:Verifier)
 
 # Extract address from output (more robust than JSON parsing)
 VERIFIER_ADDRESS=$(echo "$VERIFIER_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
@@ -138,7 +159,7 @@ fi
 # Deploy CrossChainRPS
 print_status "Deploying CrossChainRPS contract..."
 print_status "Using Verifier address: $VERIFIER_ADDRESS"
-CROSSCHAIN_OUTPUT=$(forge create src/CrossChainRPC.sol:CrossChainRPS --constructor-args $VERIFIER_ADDRESS --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --broadcast)
+CROSSCHAIN_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80  src/CrossChainRPS.sol:CrossChainRPS --constructor-args $VERIFIER_ADDRESS)
 
 # Extract address from output
 CROSSCHAIN_ADDRESS=$(echo "$CROSSCHAIN_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
@@ -175,37 +196,64 @@ EOF
 
 print_success ".env file updated with contract addresses!"
 
+# Source the .env file to make the variables available
+print_status "Sourcing the .env file..."
+source .env
+
+# Verify that the variables are loaded
+print_status "Loaded environment variables:"
+echo "ANVIL_RPC_URL=$ANVIL_RPC_URL"
+echo "ANVIL_CONTRACT_ADDRESS=$ANVIL_CONTRACT_ADDRESS"
+echo "ANVIL_VERIFIER_ADDRESS=$ANVIL_VERIFIER_ADDRESS"
+
 # Step 7: Generate test transactions to create events
 print_status "Generating test game moves..."
 cd ../contracts
 
+# Check if PRIVATE_KEY is set
+if [ -z "$RELAYER_PRIVATE_KEY" ]; then
+    print_error "PRIVATE_KEY is not set. Please set it in your environment or .env file."
+    exit 1
+fi
+
+print_status "Using private key: ${RELAYER_PRIVATE_KEY:0:6}...${RELAYER_PRIVATE_KEY: -4}"
+
+# Fund the deployer account in the contract
+print_status "Funding deployer account in the contract..."
+cast send $CROSSCHAIN_ADDRESS --value 1ether --private-key $RELAYER_PRIVATE_KEY --rpc-url $ANVIL_RPC_URL
+
 # Create a game
 print_status "Creating a test game..."
 GAME_TX=$(cast send $CROSSCHAIN_ADDRESS \
-    "createGame()" \
-    --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
-    --rpc-url http://127.0.0.1:8545 \
-    --value 0.1ether)
+    "createGame(bytes32,uint256)" "0x67616d6531323300000000000000000000000000000000000000000000000000" "500000000000000000" \
+    --private-key $RELAYER_PRIVATE_KEY \
+    --rpc-url $ANVIL_RPC_URL \
+    --gas-limit 500000)
 
-print_success "Test game created! TX: ${GAME_TX:0:10}..."
+if [ $? -eq 0 ]; then
+    print_success "Test game created! TX: ${GAME_TX:0:10}..."
+else
+    print_error "Failed to create test game!"
+    exit 1
+fi
 
 # Wait for transaction
 sleep 2
 
+print_success "🎯 Setup Complete! Contracts deployed and test game created."
+
+
 # Step 8: Start EventListener integration test
 print_status "Starting EventListener integration test..."
 cd ../backend
-
-print_success "🎯 Setup Complete! Starting EventListener..."
-print_status "Contract Address: $CROSSCHAIN_ADDRESS"
-print_status "Verifier Address: $VERIFIER_ADDRESS"
-print_status ""
-print_status "💡 To generate more events while testing:"
-print_status "   cd contracts"
-print_status "   cast send $CROSSCHAIN_ADDRESS \"createGame()\" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --value 0.1ether"
-print_status ""
-print_status "🛑 Press Ctrl+C to stop everything"
-print_status ""
-
 # Run the integration test
 npm run test:integration
+
+if [ "$KEEP_ANVIL_RUNNING" = true ]; then
+    print_status "Anvil is still running. You can now execute tests in your backend."
+    print_status "To stop Anvil, use the following command:"
+    print_status "kill $ANVIL_PID"
+else
+    print_status "$KEEP_ANVIL_RUNNING"
+    print_status "Anvil will be stopped automatically."
+fi

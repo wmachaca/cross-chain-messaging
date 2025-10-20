@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
-import "../src/CrossChainRPC.sol"; // Corrected file name
+import "../src/CrossChainRPS.sol"; // Corrected file name
 import "../src/Verifier.sol";
 import "../src/libraries/GameMoveStruct.sol";
 

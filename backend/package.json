@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "dev:simple": "ts-node src/indexSimple.ts",    
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",

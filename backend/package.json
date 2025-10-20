@@ -9,7 +9,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:verbose": "jest --verbose"
+    "test:verbose": "jest --verbose",
+    "test:integration": "ts-node scripts/testEventListener.ts",
+    "deploy:test": "ts-node scripts/deployTestContract.ts",
+    "generate:events": "ts-node scripts/deployRealContract.ts"
   },
   "keywords": [],
   "author": "",

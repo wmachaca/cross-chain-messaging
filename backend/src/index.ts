@@ -4,7 +4,8 @@ import cors from 'cors';//frontend
 import helmet from 'helmet';//security
 import morgan from 'morgan';//logging
 import dotenv from 'dotenv';//environment
-//import { EventListener } from './services/EventListener';
+import { EventListener } from './services/EventListener';
+import { GameMove } from './models/GameMove';
 //import { MerkleService } from './services/MerkleService';
 // TEMPORARILY COMMENTED OUT FOR TESTING:
 //import relayerRoutes from './routes/relayerRoutes';
@@ -16,7 +17,7 @@ dotenv.config();
 const app: Application = express();
 
 // Global services
-//let eventListener: EventListener;
+let eventListener: EventListener;
 //let merkleService: MerkleService;
 
 // Configure CORS for cross-chain operations//frontend
@@ -56,10 +57,13 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Simple relayer status route for testing
 app.get('/api/relayer/status', (req: Request, res: Response) => {
+  const eventListenerStatus = eventListener ? eventListener.getStatus() : null;
+  
   res.json({
-    status: 'operational',
-    mode: 'testing',
-    chainsMonitored: ['none - testing mode'],
+    status: eventListener?.isActive() ? 'operational' : 'standby',
+    mode: process.env.NODE_ENV || 'development',
+    eventListener: eventListenerStatus,
+    chainsMonitored: eventListener?.getMonitoredChains() || [],
     pendingMessages: 0,
     processedMessages: 0,
     uptime: process.uptime(),
@@ -71,8 +75,8 @@ app.get('/', (req: Request, res: Response) => {
   res.json({
     service: 'Cross-Chain Message Relayer',
     version: process.env.npm_package_version || '1.0.0',
-    status: 'operational',
-    //chains: eventListener?.getMonitoredChains() || [],
+    status: eventListener?.isActive() ? 'operational' : 'initializing',
+    chains: eventListener?.getMonitoredChains() || [],
     uptime: process.uptime(),
   });
 });
@@ -109,21 +113,42 @@ app.use('*', (req: Request, res: Response) => {
   });
 });
 
+// Game move handler
+function handleGameMove(gameMove: GameMove): void {
+  try {
+    console.log('🎮 GameOrchestrator received game move:', {
+      gameId: gameMove.gameId.slice(0, 10) + '...',
+      player: gameMove.player.slice(0, 6) + '...' + gameMove.player.slice(-4),
+      move: gameMove.move,
+      chainId: gameMove.chainId,
+      block: gameMove.blockNumber,
+    });
+
+    // TODO: This will be handled by GameOrchestrator.ts
+    // For now, just log it
+  } catch (error) {
+    console.error('❌ Error handling game move:', error);
+  }
+}
+
 // Initialize services and start server
 async function startServer() {
   try {
-    console.log('🧪 Starting test server (no blockchain services)...');
+    console.log('🚀 Starting cross-chain relayer server...');
     
-    // SERVICES COMMENTED OUT FOR TESTING:
+    // Initialize services
     // merkleService = new MerkleService();
-    // eventListener = new EventListener(async (gameMove) => {
-    //   console.log('🎮 Received game move:', gameMove);
-    // });
-    // await eventListener.startListening();
+    eventListener = new EventListener();
     
-    console.log('✅ Test server ready (services disabled)');
+    // Set up event listener to handle detected game moves
+    eventListener.on('gameMoveDetected', handleGameMove);
+    
+    // Start event listening
+    await eventListener.startListening();
+    
+    console.log('✅ Server ready with blockchain services');
   } catch (error) {
-    console.error('❌ Failed to start test server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
@@ -133,10 +158,10 @@ async function gracefulShutdown(signal: string) {
   console.log(`🛑 Received ${signal}. Shutting down gracefully...`);
 
   try {
-    /*if (eventListener) {
+    if (eventListener) {
       await eventListener.stopListening();
-      console.log('Event listener stopped');
-    }*/
+      console.log('✅ Event listener stopped');
+    }
 
     console.log('✅ Graceful shutdown completed');
     process.exit(0);

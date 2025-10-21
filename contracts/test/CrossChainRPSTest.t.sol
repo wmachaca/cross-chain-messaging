@@ -132,4 +132,5 @@ contract CrossChainRPSTest is Test {
         assertEq(uint8(move2), uint8(CrossChainRPS.Move.Rock), "Move 2 mismatch");
         assertEq(uint8(result), uint8(CrossChainRPS.GameResult.Draw), "Game result mismatch");
     }
+    //It is missing event test
 }

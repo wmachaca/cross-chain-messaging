@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
-import "../src/CrossChainRPC.sol"; // Corrected file name
+import "../src/CrossChainRPS.sol"; // Corrected file name
 import "../src/Verifier.sol";
 import "../src/libraries/GameMoveStruct.sol";
 
@@ -132,4 +132,5 @@ contract CrossChainRPSTest is Test {
         assertEq(uint8(move2), uint8(CrossChainRPS.Move.Rock), "Move 2 mismatch");
         assertEq(uint8(result), uint8(CrossChainRPS.GameResult.Draw), "Game result mismatch");
     }
+    //It is missing event test
 }

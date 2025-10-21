@@ -29,7 +29,7 @@ contract CrossChainRPS {
     mapping(address => uint256) public balances;
     
     event GameInitiated(bytes32 indexed gameId, address player1, uint256 stake);
-    event MoveCommitted(bytes32 indexed gameId, address player, Move move, uint256 blockNumber);
+    event MoveCommitted(bytes32 indexed gameId, address indexed player, uint8 move, uint256 blockNumber, uint256 balance);
     event CrossChainProofSubmitted(bytes32 indexed gameId, bool proofValid);
     event GameResolved(bytes32 indexed gameId, address winner, address loser, uint256 burnedAmount);
     
@@ -94,7 +94,7 @@ contract CrossChainRPS {
             game.move2 = move;
         }
         
-        emit MoveCommitted(gameId, msg.sender, move, block.number);
+        emit MoveCommitted(gameId, msg.sender, uint8(move), block.number, balances[msg.sender]);
     }
     
     /**

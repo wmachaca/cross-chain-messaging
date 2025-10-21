@@ -3,16 +3,13 @@ import type { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';//frontend
 import helmet from 'helmet';//security
 import morgan from 'morgan';//logging
-import dotenv from 'dotenv';//environment
+// Remove dotenv import since it's now handled in config.ts
 import { EventListener } from './services/EventListener';
 import { GameMove } from './models/GameMove';
 //import { MerkleService } from './services/MerkleService';
 // TEMPORARILY COMMENTED OUT FOR TESTING:
 //import relayerRoutes from './routes/relayerRoutes';
 //import healthRoutes from './routes/healthRoutes';
-
-// Load environment variables
-dotenv.config();
 
 const app: Application = express();
 
@@ -143,8 +140,12 @@ async function startServer() {
     // Set up event listener to handle detected game moves
     eventListener.on('gameMoveDetected', handleGameMove);
     
-    // Start event listening
+    // Start event listening FIRST
     await eventListener.startListening();
+    
+    // THEN check status (after it's started)
+    console.log('📊 EventListener Status:', eventListener.getStatus());
+    console.log('🔍 EventListener Active:', eventListener.isActive());
     
     console.log('✅ Server ready with blockchain services');
   } catch (error) {

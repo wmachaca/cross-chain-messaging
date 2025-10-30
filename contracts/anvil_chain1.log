@@ -7,7 +7,7 @@
     | (_| | | | | |  \ V /  | | | |
      \__,_| |_| |_|   \_/   |_| |_|
 
-    1.3.5-stable (9979a41b5d 2025-09-09T04:48:08.305566906Z)
+    1.4.3-stable (fa9f934bda 2025-10-22T05:31:43.173937269Z)
     https://github.com/foundry-rs/foundry
 
 Available Accounts
@@ -62,7 +62,7 @@ Gas Limit
 Genesis Timestamp
 ==================
 
-1761159189
+1761846650
 
 Genesis Number
 ==================
@@ -76,17 +76,15 @@ eth_getTransactionCount
 eth_estimateGas
 eth_feeHistory
 eth_sendRawTransaction
-eth_blockNumber
 
     Transaction: 0xd74d3966a53402ed2eca03b4f3c5081e5b8f24e83f23d90237039f88a2fe402d
     Contract created: 0x5FbDB2315678afecb367f032d93F642f64180aa3
     Gas used: 523198
 
     Block Number: 1
-    Block Hash: 0x8b93acfa73eefdc41f48f175f33cee69275d771a95f0c611f7a0d80fa57034c3
-    Block Time: "Wed, 22 Oct 2025 18:53:14 +0000"
+    Block Hash: 0x9ea9f5d38ef499c2bfcf4411b077570816a173f5fb2e8119cbffb59021d2eeac
+    Block Time: "Thu, 30 Oct 2025 17:50:55 +0000"
 
-eth_getBlockByNumber
 eth_getTransactionReceipt
 eth_getTransactionReceipt
 eth_chainId
@@ -94,53 +92,72 @@ eth_getTransactionCount
 eth_estimateGas
 eth_feeHistory
 eth_sendRawTransaction
-eth_blockNumber
-
-    Transaction: 0x90eec507f06a1098bf81573ba15b863c26d98f9917ce3da2c1441b499357faf8
-    Contract created: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-    Gas used: 2089811
 eth_getTransactionReceipt
+
+    Transaction: 0xed5d26c72d3565f2a015e617a9814ac70a2d8621492577a7593be964086fe9ec
+    Contract created: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+    Gas used: 1394399
 
     Block Number: 2
-    Block Hash: 0xf48a9e599431767c4db827b6a02e05c1354e93063bc9d7d4f33737e60ead076f
-    Block Time: "Wed, 22 Oct 2025 18:53:15 +0000"
+    Block Hash: 0x78159ed26b6ebbdf3fc27768cda9e86d2ac85090ec0ef65bcb759578c0e0ecb9
+    Block Time: "Thu, 30 Oct 2025 17:50:55 +0000"
 
-eth_getBlockByNumber
 eth_getTransactionReceipt
 eth_chainId
 eth_getTransactionCount
 eth_feeHistory
 eth_estimateGas
 eth_sendRawTransaction
-eth_blockNumber
+eth_getTransactionReceipt
 
     Transaction: 0x1d8179aaa9aac25727be83a0fad0864060c469db3fac5a79f1656573cc9dabd4
     Gas used: 43450
 
     Block Number: 3
-    Block Hash: 0x603f5cbfc25b9948e300816a6e784fcc5b0beee1fd28f80f4840ae7bf8efd6b5
-    Block Time: "Wed, 22 Oct 2025 18:53:16 +0000"
+    Block Hash: 0xc5135f25d7ec360a4a6dc2ef3c59e1af86457dfa29aa1f9790723d43b726edf6
+    Block Time: "Thu, 30 Oct 2025 17:50:55 +0000"
+
+eth_chainId
+eth_getTransactionCount
+eth_feeHistory
+eth_estimateGas
+eth_sendRawTransaction
+eth_getTransactionReceipt
+
+    Transaction: 0xc6e73dda95650268a6d30a11671e73df2f5bfed9866329835e0e5ca74a11b708
+    Gas used: 106818
+
+    Block Number: 4
+    Block Hash: 0x1d768b3df44c0f22f02b13335212af45de699ffd19fa5e74b9c7c67282dd3ec0
+    Block Time: "Thu, 30 Oct 2025 17:51:14 +0000"
 
 eth_getTransactionReceipt
-eth_getBlockByNumber
+eth_getTransactionReceipt
+eth_chainId
+eth_getTransactionCount
+eth_call
+eth_chainId
+eth_getTransactionCount
+eth_feeHistory
+eth_estimateGas
+eth_sendRawTransaction
+eth_getTransactionReceipt
+
+    Transaction: 0xd73c2c6c37c66a853d80da34c89d1b3ed595298835f33aeb647e78b194aad2ab
+    Gas used: 54489
+
+    Block Number: 5
+    Block Hash: 0x88c18e73de410e09afd4770cc55afe1fc5ba1091bf5cd352838684ccb9c99c8e
+    Block Time: "Thu, 30 Oct 2025 18:01:08 +0000"
+
+eth_getTransactionReceipt
+eth_getTransactionReceipt
 eth_blockNumber
 eth_chainId
+eth_getTransactionCount
+eth_call
+eth_chainId
+eth_getTransactionCount
+eth_call
 eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
-eth_blockNumber
+eth_getProof

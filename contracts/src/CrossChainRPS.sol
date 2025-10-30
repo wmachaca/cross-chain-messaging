@@ -71,7 +71,32 @@ contract CrossChainRPS {
         // Emit the GameInitiated event
         emit GameInitiated(gameId, msg.sender, stake);
     }
-    
+
+    function initializeGameFromChainA(
+        bytes32 gameId,
+        address player1,
+        uint256 stake,
+        uint256 chainId1
+    ) external {
+        require(games[gameId].player1 == address(0), "Game already exists");
+
+        // Initialize the game on Chain B
+        games[gameId] = Game({
+            player1: player1,
+            player2: address(0),
+            move1: Move.None,
+            move2: Move.None,
+            stake: stake,
+            chainId1: chainId1,
+            chainId2: chainId,
+            resolved: false,
+            result: GameResult.Pending
+        });
+
+        // Reuse the GameInitiated event
+        emit GameInitiated(gameId, player1, stake);
+    }
+
     /**
      * @dev Simple move commitment - this emits the event that will be proven cross-chain
      */
@@ -103,84 +128,84 @@ contract CrossChainRPS {
      * @dev Resolve game using cross-chain Merkle proof
      * This is where the MAGIC happens - proving the opponent's move from another chain
      */
-    function resolveWithCrossChainProof(
-        bytes32 gameId,
-        bytes32 merkleRoot,
-        bytes32[] calldata proof,
-        uint256 opponentChainId,
-        address opponentContract,
-        address opponent,
-        uint8 opponentMove,
-        uint256 opponentBlockNumber,
-        uint256 opponentBalance
-    ) external {
-        Game storage game = games[gameId];
-        require(game.player1 != address(0), "Game not found");
-        require(!game.resolved, "Game already resolved");
-        require(game.move1 != Move.None, "Player 1 hasn't moved");
+    // function resolveWithCrossChainProof(
+    //     bytes32 gameId,
+    //     bytes32 merkleRoot,
+    //     bytes32[] calldata proof,
+    //     uint256 opponentChainId,
+    //     address opponentContract,
+    //     address opponent,
+    //     uint8 opponentMove,
+    //     uint256 opponentBlockNumber,
+    //     uint256 opponentBalance
+    // ) external {
+    //     Game storage game = games[gameId];
+    //     require(game.player1 != address(0), "Game not found");
+    //     require(!game.resolved, "Game already resolved");
+    //     require(game.move1 != Move.None, "Player 1 hasn't moved");
         
-        GameMoveStruct.GameMove memory gameMove = GameMoveStruct.GameMove({
-            sourceChainId: opponentChainId,
-            sourceContract: opponentContract,
-            player: opponent,
-            move: opponentMove,
-            blockNumber: opponentBlockNumber,
-            balance: opponentBalance
-        });
+    //     GameMoveStruct.GameMove memory gameMove = GameMoveStruct.GameMove({
+    //         sourceChainId: opponentChainId,
+    //         sourceContract: opponentContract,
+    //         player: opponent,
+    //         move: opponentMove,
+    //         blockNumber: opponentBlockNumber,
+    //         balance: opponentBalance
+    //     });
 
-        bool proofValid = verifier.verifyCrossChainProof(
-            merkleRoot,
-            proof,
-            gameMove
-        );
+    //     bool proofValid = verifier.verifyCrossChainProof(
+    //         merkleRoot,
+    //         proof,
+    //         gameMove
+    //     );
         
-        require(proofValid, "Invalid cross-chain proof");
+    //     require(proofValid, "Invalid cross-chain proof");
         
-        // Set opponent's move from the verified proof
-        game.move2 = Move(opponentMove);
-        game.player2 = opponent;
-        game.chainId2 = opponentChainId;
+    //     // Set opponent's move from the verified proof
+    //     game.move2 = Move(opponentMove);
+    //     game.player2 = opponent;
+    //     game.chainId2 = opponentChainId;
         
-        emit CrossChainProofSubmitted(gameId, proofValid);
+    //     emit CrossChainProofSubmitted(gameId, proofValid);
         
-        // Resolve the game
-        _resolveGame(gameId);
-    }
+    //     // Resolve the game
+    //     _resolveGame(gameId);
+    // }
     
-    function _resolveGame(bytes32 gameId) internal {
-        Game storage game = games[gameId];
-        require(game.move1 != Move.None && game.move2 != Move.None, "Both moves required");
+    // function _resolveGame(bytes32 gameId) internal {
+    //     Game storage game = games[gameId];
+    //     require(game.move1 != Move.None && game.move2 != Move.None, "Both moves required");
         
-        uint8 winner = MoveCalculator.determineWinner(
-            MoveCalculator.Move(uint8(game.move1)),
-            MoveCalculator.Move(uint8(game.move2))
-        );
+    //     uint8 winner = MoveCalculator.determineWinner(
+    //         MoveCalculator.Move(uint8(game.move1)),
+    //         MoveCalculator.Move(uint8(game.move2))
+    //     );
         
-        if (winner == 0) {
-            // Draw - return stakes
-            game.result = GameResult.Draw;
-            balances[game.player1] += game.stake;
-            if (game.player2 != address(0)) {
-                balances[game.player2] += game.stake;
-            }
-        } else if (winner == 1) {
-            // Player 1 wins
-            game.result = GameResult.Player1Win;
-            _burnStake(game.player2, game.stake);
-            emit GameResolved(gameId, game.player1, game.player2, game.stake);
-        } else {
-            // Player 2 wins  
-            game.result = GameResult.Player2Win;
-            _burnStake(game.player1, game.stake);
-            emit GameResolved(gameId, game.player2, game.player1, game.stake);
-        }
+    //     if (winner == 0) {
+    //         // Draw - return stakes
+    //         game.result = GameResult.Draw;
+    //         balances[game.player1] += game.stake;
+    //         if (game.player2 != address(0)) {
+    //             balances[game.player2] += game.stake;
+    //         }
+    //     } else if (winner == 1) {
+    //         // Player 1 wins
+    //         game.result = GameResult.Player1Win;
+    //         _burnStake(game.player2, game.stake);
+    //         emit GameResolved(gameId, game.player1, game.player2, game.stake);
+    //     } else {
+    //         // Player 2 wins  
+    //         game.result = GameResult.Player2Win;
+    //         _burnStake(game.player1, game.stake);
+    //         emit GameResolved(gameId, game.player2, game.player1, game.stake);
+    //     }
         
-        game.resolved = true;
-    }
+    //     game.resolved = true;
+    // }
     
-    function _burnStake(address loser, uint256 amount) internal {
-        require(balances[loser] >= amount, "Insufficient balance to burn");
-        balances[loser] -= amount;
-        payable(address(0)).transfer(amount);
-    }
+    // function _burnStake(address loser, uint256 amount) internal {
+    //     require(balances[loser] >= amount, "Insufficient balance to burn");
+    //     balances[loser] -= amount;
+    //     payable(address(0)).transfer(amount);
+    // }
 }

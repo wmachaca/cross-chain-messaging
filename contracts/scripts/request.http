@@ -1,0 +1,15 @@
+
+##
+POST http://127.0.0.1:8545
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "method": "eth_getProof",
+  "params": [
+    "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    ["0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf499"],
+    "0x5"
+  ],
+  "id": 1
+}

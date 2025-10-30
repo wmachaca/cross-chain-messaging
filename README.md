@@ -2,6 +2,28 @@
 
 This project implements a cross-chain messaging system with a focus on Web3 technologies. It includes Solidity contracts, a backend relayer service, and an optional frontend dashboard.
 
+---
+
+## 📡 SYSTEM ARCHITECTURE DIAGRAM
+
+```
+┌─────────────────┐          ┌──────────────────┐          ┌─────────────────┐
+│   BLOCKCHAIN A  │          │   BACKEND ORACLE │          │   BLOCKCHAIN B  │
+│   (Ethereum)    │          │                  │          │   (Polygon)     │
+│                 │          │                  │          │                 │
+│ ┌─────────────┐ │          │ ┌──────────────┐ │          │ ┌─────────────┐ │
+│ │ Game        │ │ Events   │ │ Event        │ │ Merkle   │ │ Game        │ │
+│ │ Contract    │──────────▶│ │ Listener     │ │ Proofs   │ │ Contract    │ │
+│ │             │ │          │ │              │──────────▶│ │             │ │ 
+│ │ - commitMove│ │          │ │ - Merkle     │ │          │ │ - verify    │ │
+│ │ - verify    │ │          │ │   Service    │ │          │ │   Proof     │ │
+│ │   Proof     │◀──────────│ │ - Proof      │ │          │ │ - resolve   │ │
+│ └─────────────┘ │          │ │   Relayer    │ │          │ │   Game      │ │
+└─────────────────┘          └──────────────────┘          └─────────────────┘
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -25,6 +47,8 @@ cross-chain-messaging/
 ├── setup-dev.sh          # Automated setup script
 └── README.md             # Project documentation
 ```
+
+---
 
 ## Linting and Formatting
 

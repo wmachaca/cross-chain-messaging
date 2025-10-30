@@ -25,11 +25,12 @@ contract CrossChainRPS {
     Verifier public verifier;
     uint256 public chainId;
     
-    mapping(bytes32 => Game) public games;
+    // This mapping creates storage entries that eth_getProof can verify!
+    mapping(bytes32 => Game) public games;  // ← This is what gets proven!
     mapping(address => uint256) public balances;
     
     event GameInitiated(bytes32 indexed gameId, address player1, uint256 stake);
-    event MoveCommitted(bytes32 indexed gameId, address player, Move move, uint256 blockNumber);
+    event MoveCommitted(bytes32 indexed gameId, address indexed player, uint8 move, uint256 blockNumber, uint256 balance);
     event CrossChainProofSubmitted(bytes32 indexed gameId, bool proofValid);
     event GameResolved(bytes32 indexed gameId, address winner, address loser, uint256 burnedAmount);
     
@@ -75,26 +76,27 @@ contract CrossChainRPS {
      * @dev Simple move commitment - this emits the event that will be proven cross-chain
      */
     function commitMove(bytes32 gameId) external {
-        Game storage game = games[gameId];
+        Game storage game = games[gameId];  // ← This storage write is provable!
         require(game.player1 != address(0), "Game not found");
         require(!game.resolved, "Game already resolved");
         
         // Calculate move based on block number (as per requirements)
         Move move = Move(uint8(block.number.calculateMove()));
         
+        // The storage update creates a provable state change
         if (msg.sender == game.player1) {
             require(game.move1 == Move.None, "Player 1 already moved");
-            game.move1 = move;
+            game.move1 = move;  // ← This gets stored and can be proven!
         } else {
             require(game.player2 == address(0) || game.player2 == msg.sender, "Not a player");
             if (game.player2 == address(0)) {
                 game.player2 = msg.sender;
             }
             require(game.move2 == Move.None, "Player 2 already moved");
-            game.move2 = move;
+            game.move2 = move;  // ← This gets stored and can be proven!
         }
         
-        emit MoveCommitted(gameId, msg.sender, move, block.number);
+        emit MoveCommitted(gameId, msg.sender, uint8(move), block.number, balances[msg.sender]);
     }
     
     /**

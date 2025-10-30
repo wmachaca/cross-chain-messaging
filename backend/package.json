@@ -4,12 +4,16 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "dev:simple": "ts-node src/indexSimple.ts",    
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:verbose": "jest --verbose"
+    "test:verbose": "jest --verbose",
+    "test:integration": "ts-node scripts/testEventListener.ts",
+    "deploy:test": "ts-node scripts/deployTestContract.ts",
+    "generate:events": "ts-node scripts/deployRealContract.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,8 +29,7 @@
     "morgan": "^1.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "viem": "^2.38.3",
-    "wagmi": "^2.18.1"
+    "viem": "^2.38.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

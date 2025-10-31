@@ -59,17 +59,18 @@ curl -s -X POST -H "Content-Type: application/json" --data "{
 
 gameId =0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
 slot = 0x2 -> POSITION WHERE IS STORAGE game mapping (0x0 verfier, 0x1 chainId, 0x2 games) 
+# offset is 0 because in slot 0 there is: player 1(20bytes), player2 (20bytes), move1(1byte), move2(1byte)
 STORAGE_KEY_FOR_MOVE1 = keccak256(abi.encode(gameId, slot)) + offset
 ### calculate storage key for move1
 python3 calculate_storage_key.py
-# OUTPUT: 0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf499
+# OUTPUT: 0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf497
 
 curl -s -X POST -H "Content-Type: application/json" --data "{
   \"jsonrpc\":\"2.0\",
   \"method\":\"eth_getProof\",
   \"params\":[
     \"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512\",
-    [\"0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf499\"],
+    [\"0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf497\"],
     \"0x5\"
   ],
   \"id\":1
@@ -91,23 +92,39 @@ curl -s -X POST -H "Content-Type: application/json" --data "{
     ],
     "storageProof": [
       {
-        "key": "0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf499",
-        "value": "0xde0b6b3a7640000",
+        "key": "0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf497",
+        "value": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "proof": [
           "0xf9011180a09b118739991d21f6239b7b9d0384e40306db10e7872b55618bdff3134e9b12a3a0d4c6fa98c17e748aa4cdbc54814982404b314b7fb14f32d6b965937ccf41d95f808080808080a04d1ef02ef925fdeccc3958f6ef72c756f5322819e25e5db64b1ac28e4319e2b2a066c0b25c8dd1ffa5162b3570a2a330755ac53aa2163e95f90ee7d509f8e2d0b3a04d2d3e16810c866577972788f017ae20a4d59cacd4a6a617ffbf56863aaea20980a038721e15ae9515489fc6a232c03f92e12033f08147d24ef8f7c9c08606f3a46ea032c8e53201704221596b54dd79cc19ac9723e4c2578a18e3c023f9ba8f5be107a057bde1ecca8a36c0531388d3b1ecfc5120b8e676cbfe6a7110355a9f15efe78480",
-          "0xeba03d48561058943de4136e30099a4984d7c90fed00d7e55f6dfbd6e88083ecebee89880de0b6b3a7640000"
+          "0xe211a04ed61def9b058104e0634d66ce0acf08a7965de9038e781a7562d733de63a19a",
+          "0xf851a07c50324b2eca117e0f353a8a31caab7ac240170ef9557d615bda31a629359815808080808080808080808080a04cd1e260f3edb40abb87f76351b7c1b6a85eccc83c171437c2842a94f8145f3a808080",
+          "0xf69f359e80e7f040a9592439e0f84ef5c030b8c8aed34fe4af68136e45dff6eed39594f39fd6e51aad88f6f4ce6ab8827279cfffb92266"
         ]
       }
     ]
   }
 }
 
+
 ### see the value: 
 cast --to-dec 0xde0b6b3a7640000
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 change the calculate.py because it is storage in the base slot :
 cast storage <CONTRACT_ADDRESS> <BASE_SLOT> --rpc-url <RPC_URL>
+0x0000000000000000000000000000000000000000000000000000000000000000
+### verify contract slot 0
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0x0000000000000000000000000000000000000000000000000000000000000000 --rpc-url http://127.0.0.1:8545
+
+### chainId slot 1
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url http://127.0.0.1:8545 | cast --to-dec
+
+### chainId slot 2
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0x0000000000000000000000000000000000000000000000000000000000000002 --rpc-url http://127.0.0.1:8545
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
 
 
 

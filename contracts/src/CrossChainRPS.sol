@@ -10,28 +10,13 @@ contract CrossChainRPS {
     enum Move { None, Rock, Paper, Scissors }
     enum GameResult { Pending, Player1Win, Player2Win, Draw }
     
-    struct Game {
-        address player1;
-        address player2;
-        Move move1;
-        Move move2;
-        uint256 stake;
-        uint256 chainId1;
-        uint256 chainId2;
-        bool resolved;
-        GameResult result;
-    }
-    
     Verifier public verifier;
     uint256 public chainId;
+    address public oponent;
+    Move public myMove;
+
     
-    // This mapping creates storage entries that eth_getProof can verify!
-    mapping(bytes32 => Game) public games;  // ← This is what gets proven!
-    mapping(address => uint256) public balances;
-    
-    event GameInitiated(bytes32 indexed gameId, address player1, uint256 stake);
-    event MoveCommitted(bytes32 indexed gameId, address indexed player, uint8 move, uint256 blockNumber, uint256 balance);
-    event CrossChainProofSubmitted(bytes32 indexed gameId, bool proofValid);
+    event MoveCommitted(address indexed player, uint8 move, uint256 blockNumber);
     event GameResolved(bytes32 indexed gameId, address winner, address loser, uint256 burnedAmount);
     
     constructor(address _verifier) {
@@ -39,89 +24,19 @@ contract CrossChainRPS {
         chainId = block.chainid;
     }
     
-    receive() external payable {
-        balances[msg.sender] += msg.value;
-    }
 
     /**
      * @dev Creates a new game and emits the GameInitiated event.
      * @param gameId The unique identifier for the game.
      * @param stake The amount of ETH each player must stake to participate.
      */
-    function createGame(bytes32 gameId, uint256 stake) external {
-        require(games[gameId].player1 == address(0), "Game already exists");
-        require(balances[msg.sender] >= stake, "Insufficient balance to create game");
+    function playGame() onlyOwner {
 
-        // Deduct the stake from the creator's balance
-        balances[msg.sender] -= stake;
+     // Calculate move based on block number (as per requirements)
+        myMove = Move(uint8(block.number.calculateMove()));
 
-        // Initialize the game
-        games[gameId] = Game({
-            player1: msg.sender,
-            player2: address(0),
-            move1: Move.None,
-            move2: Move.None,
-            stake: stake,
-            chainId1: chainId,
-            chainId2: 0,
-            resolved: false,
-            result: GameResult.Pending
-        });
-
-        // Emit the GameInitiated event
-        emit GameInitiated(gameId, msg.sender, stake);
-    }
-
-    function initializeGameFromChainA(
-        bytes32 gameId,
-        address player1,
-        uint256 stake,
-        uint256 chainId1
-    ) external {
-        require(games[gameId].player1 == address(0), "Game already exists");
-
-        // Initialize the game on Chain B
-        games[gameId] = Game({
-            player1: player1,
-            player2: address(0),
-            move1: Move.None,
-            move2: Move.None,
-            stake: stake,
-            chainId1: chainId1,
-            chainId2: chainId,
-            resolved: false,
-            result: GameResult.Pending
-        });
-
-        // Reuse the GameInitiated event
-        emit GameInitiated(gameId, player1, stake);
-    }
-
-    /**
-     * @dev Simple move commitment - this emits the event that will be proven cross-chain
-     */
-    function commitMove(bytes32 gameId) external {
-        Game storage game = games[gameId];  // ← This storage write is provable!
-        require(game.player1 != address(0), "Game not found");
-        require(!game.resolved, "Game already resolved");
         
-        // Calculate move based on block number (as per requirements)
-        Move move = Move(uint8(block.number.calculateMove()));
-        
-        // The storage update creates a provable state change
-        if (msg.sender == game.player1) {
-            require(game.move1 == Move.None, "Player 1 already moved");
-            game.move1 = move;  // ← This gets stored and can be proven!
-        } else {
-            require(game.player2 == address(0) || game.player2 == msg.sender, "Not a player");
-            if (game.player2 == address(0)) {
-                game.player2 = msg.sender;
-            }
-            require(game.move2 == Move.None, "Player 2 already moved");
-            game.move2 = move;  // ← This gets stored and can be proven!
-        }
-        
-        emit MoveCommitted(gameId, msg.sender, uint8(move), block.number, balances[msg.sender]);
+        emit MoveCommitted(msg.sender, uint8(move), block.number);
     }
     
     /**

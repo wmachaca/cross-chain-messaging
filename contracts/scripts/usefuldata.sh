@@ -120,6 +120,13 @@ cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0x0000000000000000000000
 
 ### chainId slot 2
 cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0x0000000000000000000000000000000000000000000000000000000000000002 --rpc-url http://127.0.0.1:8545
+
+### slot 2 + offset 0 
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf497 --rpc-url http://127.0.0.1:8545
+### slot 2 + offset 1 
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf498 --rpc-url http://127.0.0.1:8545
+### slot 2 + offset 2 
+cast storage 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 0xe4581dba05d61ffbfec4654456ecd4ed22ea2046ac8c0950a7aef38e2c2cf499 --rpc-url http://127.0.0.1:8545
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 

@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "./Verifier.sol";
 import "./libraries/MoveCalculator.sol";
 
-contract CrossChainRPS {
+
+contract CrossChainRPS is Ownable {
     using MoveCalculator for uint256;
     
     enum Move { None, Rock, Paper, Scissors }
@@ -36,7 +38,7 @@ contract CrossChainRPS {
         myMove = Move(uint8(block.number.calculateMove()));
 
         
-        emit MoveCommitted(msg.sender, uint8(move), block.number);
+        emit MoveCommitted(msg.sender, uint8(myMove), block.number);
     }
     
     /**

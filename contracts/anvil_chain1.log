@@ -62,7 +62,7 @@ Gas Limit
 Genesis Timestamp
 ==================
 
-1761913176
+1762039618
 
 Genesis Number
 ==================
@@ -82,8 +82,8 @@ eth_sendRawTransaction
     Gas used: 523198
 
     Block Number: 1
-    Block Hash: 0xa9ac9dcfd9f370e746cdeafc87bfcb6cbce4c0e91240e42d0567c204c00ac3c9
-    Block Time: "Fri, 31 Oct 2025 12:19:41 +0000"
+    Block Hash: 0x3afa45ea25a2e3e08072b3cc9c8bb017fe6cf86769399d4867656c5f672ad39f
+    Block Time: "Sat, 1 Nov 2025 23:27:03 +0000"
 
 eth_getTransactionReceipt
 eth_getTransactionReceipt
@@ -94,13 +94,13 @@ eth_feeHistory
 eth_sendRawTransaction
 eth_getTransactionReceipt
 
-    Transaction: 0xed5d26c72d3565f2a015e617a9814ac70a2d8621492577a7593be964086fe9ec
+    Transaction: 0x71fea72f00d6b4e6839dd586e479e277decee6d808d9eee673a1a75da30d738c
     Contract created: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-    Gas used: 1394399
+    Gas used: 627646
 
     Block Number: 2
-    Block Hash: 0x378213feadb8902b13201fe6f33158a069c8b337ac492b4bce31606233eb4b63
-    Block Time: "Fri, 31 Oct 2025 12:19:41 +0000"
+    Block Hash: 0x3c29691c754b9059cc30a941deebf6c8337edbb46961deada0c68eef0c8f5488
+    Block Time: "Sat, 1 Nov 2025 23:27:04 +0000"
 
 eth_blockNumber
 eth_getBlockByNumber
@@ -116,10 +116,19 @@ eth_sendRawTransaction
     Gas used: 43450
 
     Block Number: 3
-    Block Hash: 0xa73292ce8200940eeef6ef41646342f093456fcc7f55bc794693165293d7c128
-    Block Time: "Fri, 31 Oct 2025 12:19:43 +0000"
+    Block Hash: 0xdc8c8512393943025c0105226c489429eac5f38ecbf72a989190facefe636e29
+    Block Time: "Sat, 1 Nov 2025 23:27:04 +0000"
 
 eth_getTransactionReceipt
+eth_chainId
+eth_getTransactionCount
+eth_call
+eth_chainId
+eth_getTransactionCount
+eth_call
+eth_chainId
+eth_getTransactionCount
+eth_call
 eth_chainId
 eth_getTransactionCount
 eth_call
@@ -129,38 +138,33 @@ eth_feeHistory
 eth_estimateGas
 eth_sendRawTransaction
 eth_getTransactionReceipt
-
-    Transaction: 0xc6e73dda95650268a6d30a11671e73df2f5bfed9866329835e0e5ca74a11b708
-    Gas used: 106818
-
-    Block Number: 4
-    Block Hash: 0xa0f5f6668eec54f9ed0d106c513f0afc574cb6636214fb5a5173d3fb269b877b
-    Block Time: "Fri, 31 Oct 2025 12:20:14 +0000"
-
-eth_chainId
-eth_getTransactionCount
-eth_call
-eth_chainId
-eth_getTransactionCount
-eth_feeHistory
-eth_estimateGas
-eth_sendRawTransaction
-
-    Transaction: 0xd73c2c6c37c66a853d80da34c89d1b3ed595298835f33aeb647e78b194aad2ab
-    Gas used: 54489
-
-    Block Number: 5
-    Block Hash: 0x8be2b20e69e961e275fd6d38999b13c76f2e7f33f6260b47b04422fc1cd433da
-    Block Time: "Fri, 31 Oct 2025 12:21:23 +0000"
-
 eth_getTransactionReceipt
 eth_blockNumber
+eth_getBlockByNumber
+eth_getTransactionReceipt
+
+    Transaction: 0x185226bc18e68f5cf6be3ad0e0aacdedf67be7db587c59805be0419b4961274e
+    Gas used: 29280
+
+    Block Number: 4
+    Block Hash: 0x18a60b996b5179af293678bc06323cc28eff47a73076844f2c569b7c8a36c715
+    Block Time: "Sat, 1 Nov 2025 23:53:03 +0000"
+
+eth_getBlockByNumber
+eth_blockNumber
+eth_getTransactionReceipt
+eth_getBlockByNumber
 eth_chainId
 eth_getTransactionCount
 eth_call
+eth_chainId
+eth_getTransactionCount
+eth_call
+eth_blockNumber
 eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
+eth_getProof

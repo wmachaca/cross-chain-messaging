@@ -8,39 +8,50 @@ import "./libraries/MoveCalculator.sol";
 
 contract CrossChainRPS is Ownable {
     using MoveCalculator for uint256;
-    
-    enum Move { None, Rock, Paper, Scissors }
-    enum GameResult { Pending, Player1Win, Player2Win, Draw }
-    
-    Verifier public verifier;
-    uint256 public chainId;
-    address public oponent;
-    Move public myMove;
 
-    
+    enum Move { None, Rock, Paper, Scissors }
+
+    Move public myMove;
+    Verifier public verifier;
+    address public oponent;
+
+
+    mapping(address => uint256) public balances;
     event MoveCommitted(address indexed player, uint8 move, uint256 blockNumber);
-    event GameResolved(bytes32 indexed gameId, address winner, address loser, uint256 burnedAmount);
-    
-    constructor(address _verifier) {
+    //event GameResolved(bytes32 indexed gameId, address winner, address loser, uint256 burnedAmount);
+
+    /// @param _verifier Verifier contract address
+    /// @param _initialOwner Address to set as owner in the Ownable base
+    constructor(address _verifier, address _initialOwner) Ownable(_initialOwner) {
         verifier = Verifier(_verifier);
-        chainId = block.chainid;
     }
-    
 
     /**
-     * @dev Creates a new game and emits the GameInitiated event.
-     * @param gameId The unique identifier for the game.
-     * @param stake The amount of ETH each player must stake to participate.
+     * @dev Deposit funds to the contract
      */
-    function playGame() onlyOwner {
+    receive() external payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    /**
+     *Play game. OnlyOwner
+     */
+    function playGame() external onlyOwner {
 
      // Calculate move based on block number (as per requirements)
         myMove = Move(uint8(block.number.calculateMove()));
 
-        
+
         emit MoveCommitted(msg.sender, uint8(myMove), block.number);
     }
-    
+
+    /**
+     * @notice Returns whether a move has been played (true) or not (false)
+     */
+    function getStatus() external view returns (bool) {
+        return myMove != Move.None;
+    }
+
     /**
      * @dev Resolve game using cross-chain Merkle proof
      * This is where the MAGIC happens - proving the opponent's move from another chain
@@ -60,7 +71,7 @@ contract CrossChainRPS is Ownable {
     //     require(game.player1 != address(0), "Game not found");
     //     require(!game.resolved, "Game already resolved");
     //     require(game.move1 != Move.None, "Player 1 hasn't moved");
-        
+
     //     GameMoveStruct.GameMove memory gameMove = GameMoveStruct.GameMove({
     //         sourceChainId: opponentChainId,
     //         sourceContract: opponentContract,
@@ -75,29 +86,29 @@ contract CrossChainRPS is Ownable {
     //         proof,
     //         gameMove
     //     );
-        
+
     //     require(proofValid, "Invalid cross-chain proof");
-        
+
     //     // Set opponent's move from the verified proof
     //     game.move2 = Move(opponentMove);
     //     game.player2 = opponent;
     //     game.chainId2 = opponentChainId;
-        
+
     //     emit CrossChainProofSubmitted(gameId, proofValid);
-        
+
     //     // Resolve the game
     //     _resolveGame(gameId);
     // }
-    
+
     // function _resolveGame(bytes32 gameId) internal {
     //     Game storage game = games[gameId];
     //     require(game.move1 != Move.None && game.move2 != Move.None, "Both moves required");
-        
+
     //     uint8 winner = MoveCalculator.determineWinner(
     //         MoveCalculator.Move(uint8(game.move1)),
     //         MoveCalculator.Move(uint8(game.move2))
     //     );
-        
+
     //     if (winner == 0) {
     //         // Draw - return stakes
     //         game.result = GameResult.Draw;
@@ -111,15 +122,15 @@ contract CrossChainRPS is Ownable {
     //         _burnStake(game.player2, game.stake);
     //         emit GameResolved(gameId, game.player1, game.player2, game.stake);
     //     } else {
-    //         // Player 2 wins  
+    //         // Player 2 wins
     //         game.result = GameResult.Player2Win;
     //         _burnStake(game.player1, game.stake);
     //         emit GameResolved(gameId, game.player2, game.player1, game.stake);
     //     }
-        
+
     //     game.resolved = true;
     // }
-    
+
     // function _burnStake(address loser, uint256 amount) internal {
     //     require(balances[loser] >= amount, "Insufficient balance to burn");
     //     balances[loser] -= amount;

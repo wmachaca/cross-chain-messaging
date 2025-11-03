@@ -41,24 +41,29 @@ command_exists() {
 # Check prerequisites
 check_prerequisites() {
     print_status "Checking prerequisites..."
-    
+
     if ! command_exists "anvil"; then
         print_error "Anvil not found. Please install Foundry:"
         print_error "curl -L https://foundry.paradigm.xyz | bash"
         print_error "foundryup"
         exit 1
     fi
-    
+
     if ! command_exists "forge"; then
         print_error "Forge not found. Please install Foundry"
         exit 1
     fi
-    
+
+    if ! command_exists "cast"; then
+        print_error "cast (Foundry) not found. Please install Foundry (foundryup) to get cast"
+        exit 1
+    fi
+
     if ! command_exists "node"; then
         print_error "Node.js not found. Please install Node.js"
         exit 1
     fi
-    
+
     print_success "All prerequisites found!"
 }
 
@@ -126,9 +131,13 @@ print_status "Chain 2: http://127.0.0.1:8546 (PID: $ANVIL2_PID)"
 # Step 5: Deploy contracts to Chain 1
 print_status "🚀 Deploying contracts to Chain 1 (31337)..."
 
+# Derive deployer/owner address from the private key used for deployment
+PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+OWNER_ADDR=$(cast wallet address $PRIVATE_KEY)
+
 # Deploy Verifier to Chain 1
 print_status "Deploying Verifier contract to Chain 1..."
-VERIFIER1_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Verifier.sol:Verifier)
+VERIFIER1_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key $PRIVATE_KEY src/Verifier.sol:Verifier)
 
 VERIFIER1_ADDRESS=$(echo "$VERIFIER1_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
 
@@ -140,9 +149,9 @@ else
     exit 1
 fi
 
-# Deploy CrossChainRPS to Chain 1
+# Deploy CrossChainRPS to Chain 1 (pass verifier and owner)
 print_status "Deploying CrossChainRPS contract to Chain 1..."
-CROSSCHAIN1_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/CrossChainRPS.sol:CrossChainRPS --constructor-args $VERIFIER1_ADDRESS)
+CROSSCHAIN1_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8545 --private-key $PRIVATE_KEY src/CrossChainRPS.sol:CrossChainRPS --constructor-args $VERIFIER1_ADDRESS $OWNER_ADDR)
 
 CROSSCHAIN1_ADDRESS=$(echo "$CROSSCHAIN1_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
 
@@ -159,7 +168,7 @@ print_status "🚀 Deploying contracts to Chain 2 (31338)..."
 
 # Deploy Verifier to Chain 2
 print_status "Deploying Verifier contract to Chain 2..."
-VERIFIER2_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8546 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Verifier.sol:Verifier)
+VERIFIER2_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8546 --private-key $PRIVATE_KEY src/Verifier.sol:Verifier)
 
 VERIFIER2_ADDRESS=$(echo "$VERIFIER2_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
 
@@ -171,9 +180,9 @@ else
     exit 1
 fi
 
-# Deploy CrossChainRPS to Chain 2
+# Deploy CrossChainRPS to Chain 2 (pass verifier and owner)
 print_status "Deploying CrossChainRPS contract to Chain 2..."
-CROSSCHAIN2_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8546 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/CrossChainRPS.sol:CrossChainRPS --constructor-args $VERIFIER2_ADDRESS)
+CROSSCHAIN2_OUTPUT=$(forge create --broadcast --rpc-url http://127.0.0.1:8546 --private-key $PRIVATE_KEY src/CrossChainRPS.sol:CrossChainRPS --constructor-args $VERIFIER2_ADDRESS $OWNER_ADDR)
 
 CROSSCHAIN2_ADDRESS=$(echo "$CROSSCHAIN2_OUTPUT" | grep "Deployed to:" | awk '{print $3}')
 
@@ -230,7 +239,7 @@ print_status "Funding deployer accounts on both chains..."
 print_status "Funding account on Chain 1..."
 cast send $CROSSCHAIN1_ADDRESS --value 2ether --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
 
-# Fund on Chain 2  
+# Fund on Chain 2
 print_status "Funding account on Chain 2..."
 cast send $CROSSCHAIN2_ADDRESS --value 2ether --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8546
 
